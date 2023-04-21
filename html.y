@@ -18,6 +18,9 @@ void yyerror (const char *);
 
 %token tMAIN tCONST tIF tELSE tWHILE tPRINTF tRETURN tINT tVOID tID tNB tADD tSUB tMUL tDIV tLOPERATOR tASSIGN tLBRACE tRBRACE tLPAR tRPAR tSEMI tCOMMA
 
+%left tCOMMA
+%left tLOPERATOR
+
 %left tADD tSUB
 %left tMUL tDIV
 %left tASSIGN
@@ -27,7 +30,7 @@ void yyerror (const char *);
 %%
 
 Input :
-    /* eps */ 
+     %empty
     | Input Function 
     ;
 
@@ -40,23 +43,22 @@ Declaration :
     tID tLPAR Arg tRPAR 
 
 Arg :
-    /* eps */
+     %empty
     | tVOID
     | tINT tID 
     | tINT tID tCOMMA Arg
     ;
 
-Content :
-    | ContentDeclaration ContentInstruction
+Content :  ContentDeclaration ContentInstruction
 
 ContentDeclaration :
-    /* eps */
-    | tCONST tINT InitialisationConst tSEMI Content 
-    | tINT InitialisationInt tSEMI Content 
+    %empty
+    | tCONST tINT InitialisationConst tSEMI ContentDeclaration 
+    | tINT InitialisationInt tSEMI ContentDeclaration 
     ;  
 
 ContentInstruction :
-    /* eps */
+    %empty
     | Affect tSEMI ContentInstruction           
     | tPRINTF tLPAR Val tRPAR tSEMI ContentInstruction 
     | tWHILE tLPAR LVal tRPAR tLBRACE Content tRBRACE ContentInstruction
@@ -84,7 +86,7 @@ InitialisationInt :
     ;
 
 InitialisationConst :
-    | tID tASSIGN Val   {
+     tID tASSIGN Val   {
         int tmp = popTmp();
         push($<stringValue>1, type_const_int);
         printf("COP %d %d ", getAddressByLabel($<stringValue>1), tmp);
